@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Three.js Touch Circles</title>
     <style>
       body {
@@ -44,6 +47,7 @@
         renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
+        material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
 
         // Add event listeners for touch and mouse events
         document.addEventListener("touchstart", onTouchStart, false);
@@ -56,9 +60,35 @@
         window.addEventListener("resize", onWindowResize, false);
       }
 
+      function isFullscreen() {
+        return (
+          document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          document.mozFullScreenElement ||
+          document.msFullscreenElement
+        );
+      }
+
+      function openFullscreen() {
+        if (isFullscreen()) {
+          return;
+        }
+        let elem = document.documentElement;
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+          /* Safari */
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+          /* IE11 */
+          elem.msRequestFullscreen();
+        }
+        openFullscreen();
+      }
+
       function createCircle(x, y) {
         const geometry = new THREE.CircleGeometry(20, 32);
-        material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+
         const circle = new THREE.Mesh(geometry, material);
         circle.position.set(
           x - window.innerWidth / 2,
@@ -69,6 +99,7 @@
       }
 
       function onTouchStart(event) {
+        openFullscreen();
         for (let i = 0; i < event.touches.length; i++) {
           const touch = event.touches[i];
           if (!touchData[touch.identifier]) {
@@ -104,6 +135,7 @@
       }
 
       function onMouseDown(event) {
+        openFullscreen();
         if (!circles["mouse"]) {
           const circle = createCircle(event.clientX, event.clientY);
           circles["mouse"] = circle;
